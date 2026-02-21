@@ -1,0 +1,5 @@
+{
+  "name": "Vision to Prompt",
+  "description": "Analyze images to generate detailed prompts and test them with Nano Banana Pro.",
+  "requestFramePermissions": []
+}
