@@ -75,7 +75,7 @@ function ApiKeyGate({ children }: { children: React.ReactNode }) {
 }
 
 async function analyzeImage(base64Data: string, mimeType: string) {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   
   const prompt = `Ты — эксперт по точному визуальному анализу изображений.
 
@@ -125,12 +125,14 @@ async function analyzeImage(base64Data: string, mimeType: string) {
 
   const response = await ai.models.generateContent({
     model: 'gemini-3.1-pro-preview',
-    contents: {
-      parts: [
-        { inlineData: { data: base64Data, mimeType } },
-        { text: prompt }
-      ]
-    },
+    contents: [
+      {
+        parts: [
+          { inlineData: { data: base64Data, mimeType } },
+          { text: prompt }
+        ]
+      }
+    ],
     config
   });
 
@@ -164,15 +166,17 @@ async function analyzeImage(base64Data: string, mimeType: string) {
 }
 
 async function generateImage(prompt: string, size: '1K' | '2K' | '4K') {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   
   const response = await ai.models.generateContent({
     model: 'gemini-3-pro-image-preview',
-    contents: {
-      parts: [
-        { text: prompt }
-      ]
-    },
+    contents: [
+      {
+        parts: [
+          { text: prompt }
+        ]
+      }
+    ],
     config: {
       imageConfig: {
         aspectRatio: "1:1",
@@ -190,32 +194,36 @@ async function generateImage(prompt: string, size: '1K' | '2K' | '4K') {
 }
 
 async function transcribeAudio(base64Data: string, mimeType: string) {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
-    contents: {
-      parts: [
-        { inlineData: { data: base64Data, mimeType } },
-        { text: 'Transcribe the following audio accurately. Return only the transcription.' }
-      ]
-    }
+    contents: [
+      {
+        parts: [
+          { inlineData: { data: base64Data, mimeType } },
+          { text: 'Transcribe the following audio accurately. Return only the transcription.' }
+        ]
+      }
+    ]
   });
 
   return response.text;
 }
 
 async function askImageQuestion(base64Data: string, mimeType: string, question: string) {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   
   const response = await ai.models.generateContent({
     model: 'gemini-3.1-pro-preview',
-    contents: {
-      parts: [
-        { inlineData: { data: base64Data, mimeType } },
-        { text: question || 'Опиши это изображение в деталях.' }
-      ]
-    }
+    contents: [
+      {
+        parts: [
+          { inlineData: { data: base64Data, mimeType } },
+          { text: question || 'Опиши это изображение в деталях.' }
+        ]
+      }
+    ]
   });
 
   return response.text;
