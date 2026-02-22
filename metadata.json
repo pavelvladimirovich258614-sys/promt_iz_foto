@@ -1,5 +1,7 @@
 {
   "name": "Vision to Prompt",
-  "description": "Analyze images to generate detailed prompts and test them with Nano Banana Pro.",
-  "requestFramePermissions": []
+  "description": "Analyze images to generate detailed prompts and test them with Nano Banana Pro. Now with audio transcription.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
 }

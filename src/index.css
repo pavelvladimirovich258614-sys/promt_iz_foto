@@ -4,4 +4,78 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --color-brand-dark: #140d0c;
+  --color-brand-brown: #2a1a18;
+  --color-brand-lightbrown: #4a2e2a;
+  --color-brand-peach: #ff6b4a;
+  --color-brand-grey: #a39b9a;
+}
+
+@layer utilities {
+  .glass-panel {
+    background: linear-gradient(135deg, rgba(42, 26, 24, 0.85) 0%, rgba(20, 13, 12, 0.95) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 107, 74, 0.15);
+    box-shadow: 
+      0 10px 40px -10px rgba(0, 0, 0, 0.8),
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4);
+  }
+  
+  .neon-glow {
+    box-shadow: 0 0 25px rgba(255, 107, 74, 0.4);
+  }
+  
+  .neon-text {
+    text-shadow: 0 0 15px rgba(255, 107, 74, 0.6);
+  }
+  
+  .neon-border {
+    border-color: var(--color-brand-peach);
+    box-shadow: 0 0 20px rgba(255, 107, 74, 0.3), inset 0 0 15px rgba(255, 107, 74, 0.2);
+  }
+  
+  .btn-glossy {
+    background: linear-gradient(180deg, #ff8c73 0%, #ff6b4a 100%);
+    box-shadow: 
+      0 4px 20px rgba(255, 107, 74, 0.4),
+      inset 0 2px 0 rgba(255, 255, 255, 0.3),
+      inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    border: 1px solid #ff9d87;
+  }
+  
+  .btn-glossy:hover:not(:disabled) {
+    background: linear-gradient(180deg, #ffa08a 0%, #ff7a59 100%);
+    box-shadow: 
+      0 6px 25px rgba(255, 107, 74, 0.6),
+      inset 0 2px 0 rgba(255, 255, 255, 0.4),
+      inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+  }
+  
+  .btn-glossy:active:not(:disabled) {
+    background: linear-gradient(180deg, #ff6b4a 0%, #e55a3d 100%);
+    box-shadow: 
+      0 2px 10px rgba(255, 107, 74, 0.4),
+      inset 0 3px 6px rgba(0, 0, 0, 0.4);
+  }
+
+  .btn-glossy:disabled {
+    background: linear-gradient(180deg, #4a2e2a 0%, #2a1a18 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    border-color: #4a2e2a;
+    color: #a39b9a;
+    text-shadow: none;
+  }
+  
+  .input-glossy {
+    background: rgba(10, 6, 6, 0.8);
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.05);
+    border: 1px solid rgba(255, 107, 74, 0.2);
+  }
+  
+  .input-glossy:focus {
+    border-color: var(--color-brand-peach);
+    box-shadow: inset 0 3px 8px rgba(0,0,0,0.8), 0 0 15px rgba(255, 107, 74, 0.3);
+  }
 }
