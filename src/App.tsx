@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { UploadCloud, Image as ImageIcon, FileJson, FileText, Loader2, Sparkles, Download, Settings2, Layers, Copy, Check, Mic, Square, Volume2, MessageSquare } from 'lucide-react';
-import { GoogleGenAI, Type, ThinkingLevel } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 import { motion, AnimatePresence } from 'motion/react';
 
 declare global {
@@ -119,12 +119,10 @@ async function analyzeImage(base64Data: string, mimeType: string) {
 \`\`\`
 `;
 
-  const config: any = {
-    thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH }
-  };
+  const config: any = {};
 
   const response = await ai.models.generateContent({
-    model: 'gemini-3.1-pro-preview',
+    model: 'gemini-2.5-flash',
     contents: [
       {
         parts: [
@@ -169,7 +167,7 @@ async function generateImage(prompt: string, size: '1K' | '2K' | '4K') {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-image-preview',
+    model: 'gemini-2.5-flash-image',
     contents: [
       {
         parts: [
@@ -197,7 +195,7 @@ async function transcribeAudio(base64Data: string, mimeType: string) {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   
   const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
+    model: 'gemini-2.5-flash',
     contents: [
       {
         parts: [
@@ -215,7 +213,7 @@ async function askImageQuestion(base64Data: string, mimeType: string, question: 
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   
   const response = await ai.models.generateContent({
-    model: 'gemini-3.1-pro-preview',
+    model: 'gemini-2.5-flash',
     contents: [
       {
         parts: [
@@ -467,7 +465,7 @@ function MainApp() {
             </div>
             <h1 className="text-3xl font-medium tracking-tight text-white">Vision to Prompt</h1>
           </div>
-          <p className="text-brand-grey text-lg">Анализируйте изображения и создавайте промпты с помощью Gemini 3.1 Pro.</p>
+          <p className="text-brand-grey text-lg">Анализируйте изображения и создавайте промпты с помощью Gemini 2.5 Flash.</p>
         </header>
 
         <div className="flex flex-wrap gap-4 mb-8">
@@ -647,7 +645,7 @@ function MainApp() {
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-brand-grey bg-brand-dark/90 rounded-2xl border border-brand-lightbrown/30 backdrop-blur-md z-10">
                     <Loader2 className="w-8 h-8 animate-spin mb-4 text-brand-peach drop-shadow-[0_0_8px_rgba(255,107,74,0.6)]" />
                     <span className="font-medium text-white/90 neon-text">Gemini думает...</span>
-                    <span className="text-sm mt-1 text-brand-peach/70">Thinking Level: HIGH</span>
+                    <span className="text-sm mt-1 text-brand-peach/70">Gemini 2.5 Flash</span>
                   </div>
                 ) : promptResult ? (
                   format === 'both' ? (
@@ -713,7 +711,7 @@ function MainApp() {
                         <ImageIcon className="w-5 h-5 text-brand-peach drop-shadow-[0_0_5px_rgba(255,107,74,0.5)]" />
                         Проверить промпт
                       </h2>
-                      <p className="text-sm text-brand-grey mt-1">Сгенерировать изображение с помощью Nano Banana Pro</p>
+                      <p className="text-sm text-brand-grey mt-1">Сгенерировать изображение с помощью Gemini 2.5 Flash Image</p>
                     </div>
                     
                     <div className="flex items-center gap-3">
