@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { UploadCloud, Image as ImageIcon, FileJson, FileText, Loader2, Sparkles, Download, Settings2, Layers, Copy, Check, Mic, Square, Volume2, MessageSquare, Sun, Moon } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, FileJson, FileText, Loader2, Sparkles, Download, Settings2, Layers, Copy, Check, Mic, Square, Volume2, MessageSquare, Sun, Moon, Eye, EyeOff, LogIn } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -10,6 +10,165 @@ declare global {
       openSelectKey: () => Promise<void>;
     };
   }
+}
+
+/* ── SHA-256 helper (Web Crypto API) ── */
+async function sha256(message: string): Promise<string> {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+const SESSION_KEY = 'vtp_auth';
+
+function LoginGate({ children }: { children: React.ReactNode }) {
+  const [authed, setAuthed] = useState<boolean>(() => {
+    return sessionStorage.getItem(SESSION_KEY) === '1';
+  });
+  const [login, setLogin] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPass, setShowPass] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [shake, setShake] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const combined = login.trim() + ':' + password;
+      const hash = await sha256(combined);
+      const expected = process.env.VITE_AUTH_HASH as string;
+      if (hash === expected) {
+        sessionStorage.setItem(SESSION_KEY, '1');
+        setAuthed(true);
+      } else {
+        setError('Неверный логин или пароль');
+        setShake(true);
+        setTimeout(() => setShake(false), 600);
+        setPassword('');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (authed) return <>{children}</>;
+
+  return (
+    <div
+      className="min-h-screen flex items-center justify-center p-4 font-sans relative overflow-hidden"
+      style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)' }}
+    >
+      {/* Background orbs */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full blur-[140px] pointer-events-none"
+        style={{ background: 'var(--bg-orb1)' }} />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none"
+        style={{ background: 'var(--bg-orb2)' }} />
+
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="relative z-10 w-full max-w-sm"
+      >
+        <motion.form
+          onSubmit={handleSubmit}
+          animate={shake ? { x: [0, -10, 10, -8, 8, -4, 4, 0] } : { x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="glass-panel rounded-3xl p-8 flex flex-col gap-6"
+        >
+          {/* Logo */}
+          <div className="flex flex-col items-center gap-3 mb-2">
+            <div className="w-14 h-14 bg-brand-peach/10 border border-brand-peach/30 rounded-2xl flex items-center justify-center neon-glow">
+              <Sparkles className="w-7 h-7 text-brand-peach drop-shadow-[0_0_8px_rgba(255,107,74,0.7)]" />
+            </div>
+            <h1 className="text-2xl font-medium tracking-tight" style={{ color: 'var(--text-heading)' }}>
+              Vision to Prompt
+            </h1>
+            <p className="text-sm text-center" style={{ color: 'var(--text-secondary)' }}>
+              Введите данные для входа
+            </p>
+          </div>
+
+          {/* Login field */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
+              Логин
+            </label>
+            <input
+              type="text"
+              autoComplete="username"
+              value={login}
+              onChange={e => { setLogin(e.target.value); setError(''); }}
+              placeholder="Введите логин"
+              className="input-glossy rounded-xl px-4 py-3 text-sm focus:outline-none transition-all"
+              style={{ color: 'var(--text-primary)' }}
+              required
+            />
+          </div>
+
+          {/* Password field */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
+              Пароль
+            </label>
+            <div className="relative">
+              <input
+                type={showPass ? 'text' : 'password'}
+                autoComplete="current-password"
+                value={password}
+                onChange={e => { setPassword(e.target.value); setError(''); }}
+                placeholder="Введите пароль"
+                className="input-glossy rounded-xl px-4 py-3 pr-12 text-sm w-full focus:outline-none transition-all"
+                style={{ color: 'var(--text-primary)' }}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPass(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg transition-colors"
+                style={{ color: 'var(--text-secondary)' }}
+                tabIndex={-1}
+              >
+                {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Error message */}
+          <AnimatePresence>
+            {error && (
+              <motion.p
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="text-sm text-center font-medium"
+                style={{ color: '#ff6b4a' }}
+              >
+                {error}
+              </motion.p>
+            )}
+          </AnimatePresence>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading || !login || !password}
+            className="btn-glossy rounded-xl py-3.5 font-medium flex items-center justify-center gap-2 transition-all"
+          >
+            {loading
+              ? <Loader2 className="w-5 h-5 animate-spin" />
+              : <LogIn className="w-5 h-5" />
+            }
+            {loading ? 'Проверка...' : 'Войти'}
+          </button>
+        </motion.form>
+      </motion.div>
+    </div>
+  );
 }
 
 function ApiKeyGate({ children }: { children: React.ReactNode }) {
@@ -1047,8 +1206,10 @@ function MainApp() {
 
 export default function App() {
   return (
-    <ApiKeyGate>
-      <MainApp />
-    </ApiKeyGate>
+    <LoginGate>
+      <ApiKeyGate>
+        <MainApp />
+      </ApiKeyGate>
+    </LoginGate>
   );
 }
