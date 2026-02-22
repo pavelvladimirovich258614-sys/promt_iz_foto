@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { UploadCloud, Image as ImageIcon, FileJson, FileText, Loader2, Sparkles, Download, Settings2, Layers, Copy, Check, Mic, Square, Volume2, MessageSquare } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, FileJson, FileText, Loader2, Sparkles, Download, Settings2, Layers, Copy, Check, Mic, Square, Volume2, MessageSquare, Sun, Moon } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -42,7 +42,7 @@ function ApiKeyGate({ children }: { children: React.ReactNode }) {
 
   if (!hasKey) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-brand-dark text-white/90 p-4 font-sans relative overflow-hidden">
+      <div className="min-h-screen flex items-center justify-center p-4 font-sans relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-peach/10 rounded-full blur-[120px] pointer-events-none"></div>
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -52,8 +52,8 @@ function ApiKeyGate({ children }: { children: React.ReactNode }) {
           <div className="w-16 h-16 bg-brand-peach/10 border border-brand-peach/30 rounded-2xl flex items-center justify-center mx-auto mb-6 neon-glow">
             <Sparkles className="w-8 h-8 text-brand-peach drop-shadow-[0_0_8px_rgba(255,107,74,0.6)]" />
           </div>
-          <h2 className="text-2xl font-medium mb-4 text-white">Требуется API Ключ</h2>
-          <p className="text-brand-grey mb-8 leading-relaxed">
+          <h2 className="text-2xl font-medium mb-4">Требуется API Ключ</h2>
+          <p className="mb-8 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
             Для использования высококачественной генерации изображений (Nano Banana Pro) требуется выбрать API ключ из платного проекта Google Cloud.
             <br/><br/>
             <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noreferrer" className="text-brand-peach hover:text-brand-peach/80 transition-colors underline underline-offset-4 neon-text">
@@ -62,7 +62,7 @@ function ApiKeyGate({ children }: { children: React.ReactNode }) {
           </p>
           <button
             onClick={handleSelectKey}
-            className="w-full py-3.5 px-4 btn-glossy text-white rounded-xl font-medium transition-all"
+            className="w-full py-3.5 px-4 btn-glossy rounded-xl font-medium transition-all"
           >
             Выбрать API Ключ
           </button>
@@ -233,7 +233,7 @@ function CopyButton({ text, className = "" }: { text: string, className?: string
   return (
     <button 
       onClick={handleCopy} 
-      className={`p-1.5 bg-brand-dark/90 hover:bg-brand-brown text-brand-peach border border-brand-peach/30 rounded-md transition-all shadow-sm flex items-center justify-center ${className}`} 
+      className={`p-1.5 bg-[var(--bg-panel2)] hover:bg-brand-brown text-brand-peach border border-brand-peach/30 rounded-md transition-all shadow-sm flex items-center justify-center ${className}`} 
       title="Копировать"
     >
       {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
@@ -243,6 +243,16 @@ function CopyButton({ text, className = "" }: { text: string, className?: string
 
 function MainApp() {
   const [activeTab, setActiveTab] = useState<'image' | 'audio' | 'qa'>('image');
+  const [isDark, setIsDark] = useState(true);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDark) {
+      root.classList.remove('light');
+    } else {
+      root.classList.add('light');
+    }
+  }, [isDark]);
 
   // Tab 1: Image to Prompt
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -445,40 +455,93 @@ function MainApp() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-dark text-white/90 font-sans selection:bg-brand-peach/30 relative overflow-hidden">
-      <div className="absolute top-0 left-1/4 w-[1000px] h-[1000px] bg-brand-peach/5 rounded-full blur-[150px] pointer-events-none"></div>
-      <div className="absolute bottom-0 right-1/4 w-[800px] h-[800px] bg-brand-brown/40 rounded-full blur-[120px] pointer-events-none"></div>
-      
+    <div
+      className="min-h-screen font-sans relative overflow-hidden transition-colors duration-300"
+      style={{
+        backgroundColor: 'var(--bg-base)',
+        color: 'var(--text-primary)',
+        userSelect: 'none',
+      }}
+    >
+      <div className="absolute top-0 left-1/4 w-[1000px] h-[1000px] rounded-full blur-[150px] pointer-events-none transition-colors duration-300"
+        style={{ backgroundColor: 'var(--bg-orb1)' }}></div>
+      <div className="absolute bottom-0 right-1/4 w-[800px] h-[800px] rounded-full blur-[120px] pointer-events-none transition-colors duration-300"
+        style={{ backgroundColor: 'var(--bg-orb2)' }}></div>
+
       <div className="max-w-7xl mx-auto p-4 md:p-8 relative z-10">
-        
+
         <header className="mb-10">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 bg-brand-peach/10 border border-brand-peach/30 rounded-xl flex items-center justify-center neon-glow">
-              <Sparkles className="w-5 h-5 text-brand-peach drop-shadow-[0_0_8px_rgba(255,107,74,0.6)]" />
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-brand-peach/10 border border-brand-peach/30 rounded-xl flex items-center justify-center neon-glow">
+                <Sparkles className="w-5 h-5 text-brand-peach drop-shadow-[0_0_8px_rgba(255,107,74,0.6)]" />
+              </div>
+              <h1 className="text-3xl font-medium tracking-tight" style={{ color: 'var(--text-heading)' }}>
+                Vision to Prompt
+              </h1>
             </div>
-            <h1 className="text-3xl font-medium tracking-tight text-white">Vision to Prompt</h1>
+
+            {/* Theme toggle */}
+            <button
+              onClick={() => setIsDark(!isDark)}
+              title={isDark ? 'Дневной режим' : 'Ночной режим'}
+              className="relative flex items-center gap-2 px-3 py-2 rounded-xl border transition-all duration-300 select-none"
+              style={{
+                background: isDark ? 'rgba(42,26,24,0.85)' : 'rgba(255,255,255,0.90)',
+                borderColor: 'var(--border-panel)',
+                color: 'var(--text-secondary)',
+                boxShadow: 'var(--shadow-panel)',
+              }}
+            >
+              <Sun
+                className="w-4 h-4 transition-all duration-300"
+                style={{ color: isDark ? 'var(--text-secondary)' : '#ff6b4a', opacity: isDark ? 0.4 : 1 }}
+              />
+              {/* Track */}
+              <div
+                className="relative w-10 h-5 rounded-full transition-colors duration-300"
+                style={{ background: isDark ? 'rgba(255,107,74,0.25)' : 'rgba(255,107,74,0.20)', border: '1px solid rgba(255,107,74,0.40)' }}
+              >
+                {/* Thumb */}
+                <motion.div
+                  animate={{ x: isDark ? 20 : 2 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  className="absolute top-0.5 w-4 h-4 rounded-full"
+                  style={{ background: '#ff6b4a', boxShadow: '0 0 8px rgba(255,107,74,0.6)' }}
+                />
+              </div>
+              <Moon
+                className="w-4 h-4 transition-all duration-300"
+                style={{ color: isDark ? '#ff6b4a' : 'var(--text-secondary)', opacity: isDark ? 1 : 0.4 }}
+              />
+            </button>
           </div>
-          <p className="text-brand-grey text-lg">Анализируйте изображения и создавайте промпты с помощью Gemini 2.5 Flash.</p>
+          <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
+            Анализируйте изображения и создавайте промпты с помощью Gemini 2.5 Flash.
+          </p>
         </header>
 
         <div className="flex flex-wrap gap-4 mb-8">
-          <button 
+          <button
             onClick={() => setActiveTab('image')}
-            className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 ${activeTab === 'image' ? 'btn-glossy text-white shadow-[0_0_15px_rgba(255,107,74,0.3)]' : 'glass-panel text-brand-grey hover:text-white'}`}
+            className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 ${activeTab === 'image' ? 'btn-glossy shadow-[0_0_15px_rgba(255,107,74,0.3)]' : 'glass-panel hover:text-brand-peach'}`}
+            style={activeTab !== 'image' ? { color: 'var(--text-secondary)' } : {}}
           >
             <ImageIcon className="w-5 h-5" />
             Генератор промптов
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('qa')}
-            className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 ${activeTab === 'qa' ? 'btn-glossy text-white shadow-[0_0_15px_rgba(255,107,74,0.3)]' : 'glass-panel text-brand-grey hover:text-white'}`}
+            className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 ${activeTab === 'qa' ? 'btn-glossy shadow-[0_0_15px_rgba(255,107,74,0.3)]' : 'glass-panel hover:text-brand-peach'}`}
+            style={activeTab !== 'qa' ? { color: 'var(--text-secondary)' } : {}}
           >
             <MessageSquare className="w-5 h-5" />
             Свободный анализ
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('audio')}
-            className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 ${activeTab === 'audio' ? 'btn-glossy text-white shadow-[0_0_15px_rgba(255,107,74,0.3)]' : 'glass-panel text-brand-grey hover:text-white'}`}
+            className={`px-6 py-3 rounded-xl font-medium transition-all flex items-center gap-2 ${activeTab === 'audio' ? 'btn-glossy shadow-[0_0_15px_rgba(255,107,74,0.3)]' : 'glass-panel hover:text-brand-peach'}`}
+            style={activeTab !== 'audio' ? { color: 'var(--text-secondary)' } : {}}
           >
             <Mic className="w-5 h-5" />
             Транскрибация аудио
@@ -494,7 +557,7 @@ function MainApp() {
             
             {/* Upload Area */}
             <div 
-              className={`relative overflow-hidden rounded-3xl border-2 border-dashed transition-all duration-300 ${imagePreview ? 'border-brand-peach/30 bg-brand-brown/40 glass-panel' : 'border-brand-lightbrown/40 hover:neon-border hover:bg-brand-brown/30 bg-brand-dark/50'}`}
+              className={`relative overflow-hidden rounded-3xl border-2 border-dashed transition-all duration-300 ${imagePreview ? 'border-brand-peach/30 bg-brand-brown/40 glass-panel' : 'border-brand-lightbrown/40 hover:neon-border hover:bg-brand-brown/30 bg-[var(--bg-panel)]'}`}
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
             >
@@ -513,10 +576,10 @@ function MainApp() {
                     alt="Preview" 
                     className="w-full h-full object-contain p-4"
                   />
-                  <div className="absolute inset-0 bg-brand-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                  <div className="absolute inset-0 bg-[var(--bg-panel2)]/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
                     <button 
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-6 py-3 btn-glossy text-white rounded-full font-medium transition-all flex items-center gap-2"
+                      className="px-6 py-3 btn-glossy rounded-full font-medium transition-all flex items-center gap-2"
                     >
                       <UploadCloud className="w-5 h-5" />
                       Загрузить другое
@@ -531,8 +594,8 @@ function MainApp() {
                   <div className="w-16 h-16 bg-brand-brown/50 border border-brand-lightbrown/50 rounded-2xl flex items-center justify-center mb-4 shadow-inner">
                     <ImageIcon className="w-8 h-8 text-brand-peach/70" />
                   </div>
-                  <h3 className="text-xl font-medium mb-2 text-white/90">Загрузите изображение</h3>
-                  <p className="text-brand-grey max-w-xs">
+                  <h3 className="text-xl font-medium mb-2">Загрузите изображение</h3>
+                  <p className="max-w-xs" style={{ color: "var(--text-secondary)" }}>
                     Перетащите файл сюда или нажмите для выбора с устройства
                   </p>
                 </div>
@@ -544,11 +607,11 @@ function MainApp() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 
                 <div className="space-y-3">
-                  <label className="text-sm font-medium text-brand-grey uppercase tracking-wider flex items-center gap-2">
+                  <label className="text-sm font-medium uppercase tracking-wider flex items-center gap-2">
                     <Settings2 className="w-4 h-4 text-brand-peach" />
                     Формат вывода
                   </label>
-                  <div className="flex bg-brand-dark/80 p-1 rounded-xl border border-brand-lightbrown/30 w-fit shadow-inner">
+                  <div className="flex bg-[var(--bg-panel)] p-1 rounded-xl border border-brand-lightbrown/30 w-fit shadow-inner">
                     <button
                       onClick={() => setFormat('text')}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${format === 'text' ? 'bg-brand-brown border border-brand-peach/30 text-brand-peach shadow-md' : 'text-brand-grey hover:text-white/90 hover:bg-brand-brown/50 border border-transparent'}`}
@@ -576,7 +639,7 @@ function MainApp() {
                 <button
                   onClick={handleAnalyze}
                   disabled={!imagePreview || isAnalyzing}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-4 btn-glossy text-white rounded-xl font-medium transition-all"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-4 btn-glossy rounded-xl font-medium transition-all"
                 >
                   {isAnalyzing ? (
                     <>
@@ -602,12 +665,12 @@ function MainApp() {
             {/* Prompt Result */}
             <div className="glass-panel rounded-3xl p-6 flex flex-col min-h-[300px]">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-medium flex items-center gap-2 text-white">
+                <h2 className="text-lg font-medium flex items-center gap-2">
                   <FileText className="w-5 h-5 text-brand-peach drop-shadow-[0_0_5px_rgba(255,107,74,0.5)]" />
                   Готовый промпт
                 </h2>
                 {promptResult && (
-                  <div className="flex bg-brand-dark/80 p-1 rounded-xl border border-brand-lightbrown/30 w-fit shadow-inner">
+                  <div className="flex bg-[var(--bg-panel)] p-1 rounded-xl border border-brand-lightbrown/30 w-fit shadow-inner">
                     <button
                       onClick={() => setFormat('text')}
                       className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${format === 'text' ? 'bg-brand-brown border border-brand-peach/30 text-brand-peach shadow-md' : 'text-brand-grey hover:text-white/90 hover:bg-brand-brown/50 border border-transparent'}`}
@@ -635,9 +698,9 @@ function MainApp() {
               
               <div className="flex-1 relative flex flex-col">
                 {isAnalyzing ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-brand-grey bg-brand-dark/90 rounded-2xl border border-brand-lightbrown/30 backdrop-blur-md z-10">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-[var(--bg-panel2)] rounded-2xl border border-brand-lightbrown/30 backdrop-blur-md z-10">
                     <Loader2 className="w-8 h-8 animate-spin mb-4 text-brand-peach drop-shadow-[0_0_8px_rgba(255,107,74,0.6)]" />
-                    <span className="font-medium text-white/90 neon-text">Gemini думает...</span>
+                    <span className="font-medium neon-text">Gemini думает...</span>
                     <span className="text-sm mt-1 text-brand-peach/70">Gemini 2.5 Flash</span>
                   </div>
                 ) : promptResult ? (
@@ -645,22 +708,22 @@ function MainApp() {
                     <div className="flex-1 flex flex-col gap-4">
                       <div className="flex-1 flex flex-col relative group">
                         <div className="absolute top-3 right-4 flex items-center gap-2">
-                          <span className="text-xs font-medium text-brand-peach/70 bg-brand-dark/80 px-2 py-1 rounded-md border border-brand-peach/20">TEXT</span>
+                          <span className="text-xs font-medium text-brand-peach/70 bg-[var(--bg-panel)] px-2 py-1 rounded-md border border-brand-peach/20">TEXT</span>
                           <CopyButton text={promptResult.text} className="opacity-0 group-hover:opacity-100" />
                         </div>
                         <textarea 
-                          className="flex-1 w-full h-full min-h-[150px] input-glossy rounded-2xl p-5 pt-12 text-white/90 font-mono text-sm leading-relaxed resize-none focus:outline-none transition-all"
+                          className="flex-1 w-full h-full min-h-[150px] input-glossy rounded-2xl p-5 pt-12 font-mono text-sm leading-relaxed resize-none focus:outline-none transition-all"
                           value={promptResult.text}
                           onChange={(e) => setPromptResult({ ...promptResult, text: e.target.value })}
                         />
                       </div>
                       <div className="flex-1 flex flex-col relative group">
                         <div className="absolute top-3 right-4 flex items-center gap-2">
-                          <span className="text-xs font-medium text-brand-peach/70 bg-brand-dark/80 px-2 py-1 rounded-md border border-brand-peach/20">JSON</span>
+                          <span className="text-xs font-medium text-brand-peach/70 bg-[var(--bg-panel)] px-2 py-1 rounded-md border border-brand-peach/20">JSON</span>
                           <CopyButton text={promptResult.json} className="opacity-0 group-hover:opacity-100" />
                         </div>
                         <textarea 
-                          className="flex-1 w-full h-full min-h-[150px] input-glossy rounded-2xl p-5 pt-12 text-white/90 font-mono text-sm leading-relaxed resize-none focus:outline-none transition-all"
+                          className="flex-1 w-full h-full min-h-[150px] input-glossy rounded-2xl p-5 pt-12 font-mono text-sm leading-relaxed resize-none focus:outline-none transition-all"
                           value={promptResult.json}
                           onChange={(e) => setPromptResult({ ...promptResult, json: e.target.value })}
                         />
@@ -669,11 +732,11 @@ function MainApp() {
                   ) : (
                     <div className="flex-1 flex flex-col relative group">
                       <div className="absolute top-3 right-4 flex items-center gap-2">
-                        <span className="text-xs font-medium text-brand-peach/70 bg-brand-dark/80 px-2 py-1 rounded-md border border-brand-peach/20 uppercase">{format}</span>
+                        <span className="text-xs font-medium text-brand-peach/70 bg-[var(--bg-panel)] px-2 py-1 rounded-md border border-brand-peach/20 uppercase">{format}</span>
                         <CopyButton text={format === 'text' ? promptResult.text : promptResult.json} className="opacity-0 group-hover:opacity-100" />
                       </div>
                       <textarea 
-                        className="flex-1 w-full input-glossy rounded-2xl p-5 pt-12 text-white/90 font-mono text-sm leading-relaxed resize-none focus:outline-none transition-all"
+                        className="flex-1 w-full input-glossy rounded-2xl p-5 pt-12 font-mono text-sm leading-relaxed resize-none focus:outline-none transition-all"
                         value={format === 'text' ? promptResult.text : promptResult.json}
                         onChange={(e) => setPromptResult({
                           ...promptResult,
@@ -683,7 +746,7 @@ function MainApp() {
                     </div>
                   )
                 ) : (
-                  <div className="flex-1 flex items-center justify-center text-brand-grey/60 bg-brand-dark/40 rounded-2xl border border-brand-lightbrown/30 border-dashed shadow-inner">
+                  <div className="flex-1 flex items-center justify-center bg-[var(--bg-panel)] rounded-2xl border border-brand-lightbrown/30 border-dashed shadow-inner">
                     Здесь появится описание изображения
                   </div>
                 )}
@@ -700,17 +763,17 @@ function MainApp() {
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                     <div>
-                      <h2 className="text-lg font-medium flex items-center gap-2 text-white">
+                      <h2 className="text-lg font-medium flex items-center gap-2">
                         <ImageIcon className="w-5 h-5 text-brand-peach drop-shadow-[0_0_5px_rgba(255,107,74,0.5)]" />
                         Проверить промпт
                       </h2>
-                      <p className="text-sm text-brand-grey mt-1">Сгенерировать изображение с помощью Gemini 3 Pro Image</p>
+                      <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>Сгенерировать изображение с помощью Gemini 3 Pro Image</p>
                     </div>
                     <div className="flex items-center gap-3">
                       <select
                         value={imageSize}
                         onChange={(e) => setImageSize(e.target.value as any)}
-                        className="input-glossy text-white/90 text-sm rounded-xl px-3 py-2.5 focus:outline-none transition-all"
+                        className="input-glossy text-sm rounded-xl px-3 py-2.5 focus:outline-none transition-all"
                       >
                         <option value="1K">1K</option>
                         <option value="2K">2K</option>
@@ -719,7 +782,7 @@ function MainApp() {
                       <button
                         onClick={handleGenerateImage}
                         disabled={isGenerating}
-                        className="flex items-center gap-2 px-5 py-2.5 btn-glossy text-white rounded-xl font-medium transition-all"
+                        className="flex items-center gap-2 px-5 py-2.5 btn-glossy rounded-xl font-medium transition-all"
                       >
                         {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                         Генерировать
@@ -728,9 +791,9 @@ function MainApp() {
                   </div>
 
                   {isGenerating && !generatedImage && (
-                    <div className="aspect-square w-full input-glossy rounded-2xl flex flex-col items-center justify-center text-brand-grey">
+                    <div className="aspect-square w-full input-glossy rounded-2xl flex flex-col items-center justify-center">
                       <Loader2 className="w-8 h-8 animate-spin mb-4 text-brand-peach drop-shadow-[0_0_8px_rgba(255,107,74,0.6)]" />
-                      <span className="neon-text text-white/90">Генерация изображения ({imageSize})...</span>
+                      <span className="neon-text">Генерация изображения ({imageSize})...</span>
                     </div>
                   )}
 
@@ -744,7 +807,7 @@ function MainApp() {
                       <a
                         href={generatedImage}
                         download="generated-image.png"
-                        className="absolute bottom-4 right-4 p-3 bg-brand-dark/80 hover:bg-brand-dark text-brand-peach border border-brand-peach/30 rounded-xl backdrop-blur-md transition-colors shadow-[0_0_15px_rgba(255,107,74,0.2)]"
+                        className="absolute bottom-4 right-4 p-3 bg-[var(--bg-panel)] hover:bg-brand-dark text-brand-peach border border-brand-peach/30 rounded-xl backdrop-blur-md transition-colors shadow-[0_0_15px_rgba(255,107,74,0.2)]"
                         title="Скачать изображение"
                       >
                         <Download className="w-5 h-5" />
@@ -762,7 +825,7 @@ function MainApp() {
               {/* Left Column: Q&A Input */}
               <div className="flex flex-col gap-6">
                 <div 
-                  className={`relative overflow-hidden rounded-3xl border-2 border-dashed transition-all duration-300 ${qaImagePreview ? 'border-brand-peach/30 bg-brand-brown/40 glass-panel' : 'border-brand-lightbrown/40 hover:neon-border hover:bg-brand-brown/30 bg-brand-dark/50'}`}
+                  className={`relative overflow-hidden rounded-3xl border-2 border-dashed transition-all duration-300 ${qaImagePreview ? 'border-brand-peach/30 bg-brand-brown/40 glass-panel' : 'border-brand-lightbrown/40 hover:neon-border hover:bg-brand-brown/30 bg-[var(--bg-panel)]'}`}
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={handleQaDrop}
                 >
@@ -781,10 +844,10 @@ function MainApp() {
                         alt="Preview" 
                         className="w-full h-full object-contain p-4"
                       />
-                      <div className="absolute inset-0 bg-brand-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                      <div className="absolute inset-0 bg-[var(--bg-panel2)]/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
                         <button 
                           onClick={() => qaFileInputRef.current?.click()}
-                          className="px-6 py-3 btn-glossy text-white rounded-full font-medium transition-all flex items-center gap-2"
+                          className="px-6 py-3 btn-glossy rounded-full font-medium transition-all flex items-center gap-2"
                         >
                           <UploadCloud className="w-5 h-5" />
                           Загрузить другое
@@ -799,8 +862,8 @@ function MainApp() {
                       <div className="w-16 h-16 bg-brand-brown/50 border border-brand-lightbrown/50 rounded-2xl flex items-center justify-center mb-4 shadow-inner">
                         <ImageIcon className="w-8 h-8 text-brand-peach/70" />
                       </div>
-                      <h3 className="text-xl font-medium mb-2 text-white/90">Загрузите изображение</h3>
-                      <p className="text-brand-grey max-w-xs">
+                      <h3 className="text-xl font-medium mb-2">Загрузите изображение</h3>
+                      <p className="max-w-xs" style={{ color: "var(--text-secondary)" }}>
                         Перетащите файл сюда или нажмите для выбора с устройства
                       </p>
                     </div>
@@ -809,14 +872,14 @@ function MainApp() {
 
                 <div className="glass-panel rounded-3xl p-6">
                   <div className="flex flex-col gap-4">
-                    <label className="text-sm font-medium text-brand-grey uppercase tracking-wider flex items-center gap-2">
+                    <label className="text-sm font-medium uppercase tracking-wider flex items-center gap-2">
                       <MessageSquare className="w-4 h-4 text-brand-peach" />
                       Ваш вопрос (необязательно)
                     </label>
                     <input 
                       type="text"
                       placeholder="Что вы хотите узнать об этом изображении?"
-                      className="w-full input-glossy rounded-xl px-4 py-3 text-white/90 placeholder:text-brand-grey/50 focus:outline-none transition-all"
+                      className="w-full input-glossy rounded-xl px-4 py-3 placeholder:text-[var(--text-secondary)]/60 focus:outline-none transition-all"
                       value={qaQuestion}
                       onChange={(e) => setQaQuestion(e.target.value)}
                       onKeyDown={(e) => {
@@ -828,7 +891,7 @@ function MainApp() {
                     <button
                       onClick={handleQaAnalyze}
                       disabled={!qaImagePreview || isQaAnalyzing}
-                      className="w-full flex items-center justify-center gap-2 px-8 py-4 btn-glossy text-white rounded-xl font-medium transition-all mt-2"
+                      className="w-full flex items-center justify-center gap-2 px-8 py-4 btn-glossy rounded-xl font-medium transition-all mt-2"
                     >
                       {isQaAnalyzing ? (
                         <>
@@ -850,7 +913,7 @@ function MainApp() {
               <div className="flex flex-col gap-6">
                 <div className="glass-panel rounded-3xl p-6 flex flex-col min-h-[300px] h-full">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-medium flex items-center gap-2 text-white">
+                    <h2 className="text-lg font-medium flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-brand-peach drop-shadow-[0_0_5px_rgba(255,107,74,0.5)]" />
                       Ответ ИИ
                     </h2>
@@ -858,9 +921,9 @@ function MainApp() {
                   
                   <div className="flex-1 relative flex flex-col">
                     {isQaAnalyzing ? (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center text-brand-grey bg-brand-dark/90 rounded-2xl border border-brand-lightbrown/30 backdrop-blur-md z-10">
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-[var(--bg-panel2)] rounded-2xl border border-brand-lightbrown/30 backdrop-blur-md z-10">
                         <Loader2 className="w-8 h-8 animate-spin mb-4 text-brand-peach drop-shadow-[0_0_8px_rgba(255,107,74,0.6)]" />
-                        <span className="font-medium text-white/90 neon-text">Gemini думает...</span>
+                        <span className="font-medium neon-text">Gemini думает...</span>
                       </div>
                     ) : qaAnswer ? (
                       <div className="flex-1 flex flex-col relative group">
@@ -868,13 +931,13 @@ function MainApp() {
                           <CopyButton text={qaAnswer} className="opacity-0 group-hover:opacity-100" />
                         </div>
                         <textarea 
-                          className="flex-1 w-full h-full input-glossy rounded-2xl p-5 pt-12 text-white/90 font-mono text-sm leading-relaxed resize-none focus:outline-none transition-all"
+                          className="flex-1 w-full h-full input-glossy rounded-2xl p-5 pt-12 font-mono text-sm leading-relaxed resize-none focus:outline-none transition-all"
                           value={qaAnswer}
                           readOnly
                         />
                       </div>
                     ) : (
-                      <div className="flex-1 flex items-center justify-center text-brand-grey/60 bg-brand-dark/40 rounded-2xl border border-brand-lightbrown/30 border-dashed shadow-inner">
+                      <div className="flex-1 flex items-center justify-center bg-[var(--bg-panel)] rounded-2xl border border-brand-lightbrown/30 border-dashed shadow-inner">
                         Здесь появится ответ на ваш вопрос
                       </div>
                     )}
@@ -891,10 +954,10 @@ function MainApp() {
                     <Mic className={`w-10 h-10 ${isRecording ? 'text-brand-peach' : 'text-brand-grey'}`} />
                   </div>
                   
-                  <h3 className="text-xl font-medium mb-2 text-white/90">
+                  <h3 className="text-xl font-medium mb-2">
                     {isRecording ? 'Запись...' : 'Голосовой ввод'}
                   </h3>
-                  <p className="text-brand-grey max-w-xs mb-8">
+                  <p className="max-w-xs mb-8" style={{ color: "var(--text-secondary)" }}>
                     {isRecording ? 'Нажмите стоп, когда закончите говорить' : 'Нажмите кнопку ниже, чтобы начать запись аудио'}
                   </p>
                   
@@ -902,7 +965,7 @@ function MainApp() {
                     {!isRecording ? (
                       <button 
                         onClick={startRecording}
-                        className="px-8 py-3 btn-glossy text-white rounded-xl font-medium transition-all flex items-center gap-2"
+                        className="px-8 py-3 btn-glossy rounded-xl font-medium transition-all flex items-center gap-2"
                       >
                         <Mic className="w-5 h-5" />
                         Начать запись
@@ -910,7 +973,7 @@ function MainApp() {
                     ) : (
                       <button 
                         onClick={stopRecording}
-                        className="px-8 py-3 bg-brand-dark/80 hover:bg-brand-dark text-brand-peach border border-brand-peach/50 rounded-xl font-medium transition-all flex items-center gap-2 neon-glow"
+                        className="px-8 py-3 bg-[var(--bg-panel)] hover:bg-brand-dark text-brand-peach border border-brand-peach/50 rounded-xl font-medium transition-all flex items-center gap-2 neon-glow"
                       >
                         <Square className="w-5 h-5" />
                         Остановить
@@ -920,15 +983,15 @@ function MainApp() {
                   
                   {audioBase64 && !isRecording && (
                     <div className="mt-8 w-full">
-                      <div className="flex items-center justify-between p-4 bg-brand-dark/50 rounded-xl border border-brand-lightbrown/30">
+                      <div className="flex items-center justify-between p-4 bg-[var(--bg-panel)] rounded-xl border border-brand-lightbrown/30">
                         <div className="flex items-center gap-3">
                           <Volume2 className="w-5 h-5 text-brand-peach" />
-                          <span className="text-sm text-brand-grey">Аудио записано</span>
+                          <span className="text-sm" style={{ color: "var(--text-secondary)" }}>Аудио записано</span>
                         </div>
                         <button
                           onClick={handleTranscribe}
                           disabled={isTranscribing}
-                          className="px-4 py-2 btn-glossy text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+                          className="px-4 py-2 btn-glossy rounded-lg text-sm font-medium transition-all flex items-center gap-2"
                         >
                           {isTranscribing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                           Транскрибировать
@@ -943,7 +1006,7 @@ function MainApp() {
               <div className="flex flex-col gap-6">
                 <div className="glass-panel rounded-3xl p-6 flex flex-col min-h-[350px]">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-medium flex items-center gap-2 text-white">
+                    <h2 className="text-lg font-medium flex items-center gap-2">
                       <FileText className="w-5 h-5 text-brand-peach drop-shadow-[0_0_5px_rgba(255,107,74,0.5)]" />
                       Транскрипция
                     </h2>
@@ -951,9 +1014,9 @@ function MainApp() {
                   
                   <div className="flex-1 relative flex flex-col">
                     {isTranscribing ? (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center text-brand-grey bg-brand-dark/90 rounded-2xl border border-brand-lightbrown/30 backdrop-blur-md z-10">
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-[var(--bg-panel2)] rounded-2xl border border-brand-lightbrown/30 backdrop-blur-md z-10">
                         <Loader2 className="w-8 h-8 animate-spin mb-4 text-brand-peach drop-shadow-[0_0_8px_rgba(255,107,74,0.6)]" />
-                        <span className="font-medium text-white/90 neon-text">Распознавание речи...</span>
+                        <span className="font-medium neon-text">Распознавание речи...</span>
                       </div>
                     ) : transcriptionResult ? (
                       <div className="flex-1 flex flex-col relative group">
@@ -961,13 +1024,13 @@ function MainApp() {
                           <CopyButton text={transcriptionResult} className="opacity-0 group-hover:opacity-100" />
                         </div>
                         <textarea 
-                          className="flex-1 w-full input-glossy rounded-2xl p-5 pt-12 text-white/90 font-mono text-sm leading-relaxed resize-none focus:outline-none transition-all"
+                          className="flex-1 w-full input-glossy rounded-2xl p-5 pt-12 font-mono text-sm leading-relaxed resize-none focus:outline-none transition-all"
                           value={transcriptionResult}
                           onChange={(e) => setTranscriptionResult(e.target.value)}
                         />
                       </div>
                     ) : (
-                      <div className="flex-1 flex items-center justify-center text-brand-grey/60 bg-brand-dark/40 rounded-2xl border border-brand-lightbrown/30 border-dashed shadow-inner">
+                      <div className="flex-1 flex items-center justify-center bg-[var(--bg-panel)] rounded-2xl border border-brand-lightbrown/30 border-dashed shadow-inner">
                         Здесь появится текст из аудио
                       </div>
                     )}
