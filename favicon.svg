@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2a1a18"/>
+      <stop offset="100%" stop-color="#140d0c"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff6b4a" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ff6b4a" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="neon" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="outerGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background rounded rect -->
+  <rect width="32" height="32" rx="8" fill="url(#bg)"/>
+
+  <!-- Subtle border -->
+  <rect width="32" height="32" rx="8" fill="none" stroke="#ff6b4a" stroke-width="0.6" stroke-opacity="0.4"/>
+
+  <!-- Glow blob center -->
+  <circle cx="16" cy="16" r="12" fill="url(#glow)"/>
+
+  <!-- Sparkles icon (lucide-style) — main big star -->
+  <g filter="url(#neon)">
+    <!-- Big sparkle: 4-point star top-left area -->
+    <path d="M13 7 L13.9 11.1 L18 12 L13.9 12.9 L13 17 L12.1 12.9 L8 12 L12.1 11.1 Z"
+          fill="#ff8c73" stroke="#ff6b4a" stroke-width="0.3"/>
+
+    <!-- Small sparkle top-right -->
+    <path d="M21 8 L21.55 10.45 L24 11 L21.55 11.55 L21 14 L20.45 11.55 L18 11 L20.45 10.45 Z"
+          fill="#ffb09a" stroke="#ff8c73" stroke-width="0.2"/>
+
+    <!-- Small sparkle bottom-right -->
+    <path d="M22 18 L22.45 19.55 L24 20 L22.45 20.45 L22 22 L21.55 20.45 L20 20 L21.55 19.55 Z"
+          fill="#ff9d87" stroke="#ff8c73" stroke-width="0.2"/>
+  </g>
+
+  <!-- Outer glow repeat for neon effect -->
+  <g filter="url(#outerGlow)" opacity="0.5">
+    <path d="M13 7 L13.9 11.1 L18 12 L13.9 12.9 L13 17 L12.1 12.9 L8 12 L12.1 11.1 Z"
+          fill="#ff6b4a"/>
+  </g>
+</svg>
