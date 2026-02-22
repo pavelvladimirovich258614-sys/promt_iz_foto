@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { UploadCloud, Image as ImageIcon, FileJson, FileText, Loader2, Sparkles, Settings2, Layers, Copy, Check, Mic, Square, Volume2, MessageSquare } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, FileJson, FileText, Loader2, Sparkles, Download, Settings2, Layers, Copy, Check, Mic, Square, Volume2, MessageSquare } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -163,6 +163,28 @@ async function analyzeImage(base64Data: string, mimeType: string) {
   return { textFormat, jsonFormat };
 }
 
+async function generateImage(prompt: string, size: '1K' | '2K' | '4K') {
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-pro-image-preview',
+    contents: [{ parts: [{ text: prompt }] }],
+    config: {
+      imageConfig: {
+        aspectRatio: '1:1',
+        imageSize: size
+      }
+    }
+  });
+
+  for (const part of response.candidates?.[0]?.content?.parts || []) {
+    if (part.inlineData) {
+      return `data:${part.inlineData.mimeType || 'image/png'};base64,${part.inlineData.data}`;
+    }
+  }
+  throw new Error('No image generated');
+}
+
 async function transcribeAudio(base64Data: string, mimeType: string) {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   
@@ -228,7 +250,9 @@ function MainApp() {
   const [format, setFormat] = useState<'text' | 'json' | 'both'>('text');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [promptResult, setPromptResult] = useState<{text: string, json: string} | null>(null);
-  
+  const [imageSize, setImageSize] = useState<'1K' | '2K' | '4K'>('1K');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
 
 
   // Tab 2: Audio
@@ -332,6 +356,21 @@ function MainApp() {
       }
     }
     return promptResult.text;
+  };
+
+  const handleGenerateImage = async () => {
+    if (!promptResult) return;
+    setIsGenerating(true);
+    try {
+      const promptToUse = getPromptForGeneration();
+      const img = await generateImage(promptToUse, imageSize);
+      setGeneratedImage(img);
+    } catch (e: any) {
+      console.error(e);
+      alert('Ошибка при генерации изображения: ' + e.message);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const startRecording = async () => {
@@ -651,7 +690,7 @@ function MainApp() {
               </div>
             </div>
 
-            {/* Image Generation — external services */}
+            {/* Image Generation */}
             <AnimatePresence>
               {promptResult && (
                 <motion.div
@@ -659,42 +698,59 @@ function MainApp() {
                   animate={{ opacity: 1, height: 'auto' }}
                   className="glass-panel rounded-3xl p-6 overflow-hidden"
                 >
-                  <h2 className="text-lg font-medium flex items-center gap-2 text-white mb-1">
-                    <ImageIcon className="w-5 h-5 text-brand-peach drop-shadow-[0_0_5px_rgba(255,107,74,0.5)]" />
-                    Проверить промпт
-                  </h2>
-                  <p className="text-sm text-brand-grey mb-5">
-                    Скопируйте промпт и вставьте в один из генераторов изображений:
-                  </p>
-
-                  <div className="flex flex-col gap-3">
-                    {[
-                      { name: 'Midjourney', url: 'https://www.midjourney.com', color: '#4A90D9', hint: 'midjourney.com' },
-                      { name: 'Leonardo AI', url: 'https://app.leonardo.ai', color: '#8B5CF6', hint: 'leonardo.ai' },
-                      { name: 'Ideogram', url: 'https://ideogram.ai', color: '#10B981', hint: 'ideogram.ai' },
-                      { name: 'Adobe Firefly', url: 'https://firefly.adobe.com', color: '#FF6B4A', hint: 'firefly.adobe.com' },
-                    ].map(({ name, url, hint }) => (
-                      <div key={name} className="flex items-center justify-between gap-3 bg-brand-dark/50 border border-brand-lightbrown/30 rounded-xl px-4 py-3">
-                        <span className="text-white/80 font-medium text-sm">{name}</span>
-                        <div className="flex items-center gap-2">
-                          <CopyButton text={getPromptForGeneration()} />
-                          <a
-                            href={url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex items-center gap-1.5 px-3 py-1.5 btn-glossy text-white rounded-lg text-xs font-medium transition-all"
-                          >
-                            <Sparkles className="w-3.5 h-3.5" />
-                            Открыть
-                          </a>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                      <h2 className="text-lg font-medium flex items-center gap-2 text-white">
+                        <ImageIcon className="w-5 h-5 text-brand-peach drop-shadow-[0_0_5px_rgba(255,107,74,0.5)]" />
+                        Проверить промпт
+                      </h2>
+                      <p className="text-sm text-brand-grey mt-1">Сгенерировать изображение с помощью Gemini 3 Pro Image</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <select
+                        value={imageSize}
+                        onChange={(e) => setImageSize(e.target.value as any)}
+                        className="input-glossy text-white/90 text-sm rounded-xl px-3 py-2.5 focus:outline-none transition-all"
+                      >
+                        <option value="1K">1K</option>
+                        <option value="2K">2K</option>
+                        <option value="4K">4K</option>
+                      </select>
+                      <button
+                        onClick={handleGenerateImage}
+                        disabled={isGenerating}
+                        className="flex items-center gap-2 px-5 py-2.5 btn-glossy text-white rounded-xl font-medium transition-all"
+                      >
+                        {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                        Генерировать
+                      </button>
+                    </div>
                   </div>
 
-                  <p className="text-xs text-brand-grey/50 mt-4 text-center">
-                    Генерация через Gemini Image API требует платного тарифа Google Cloud
-                  </p>
+                  {isGenerating && !generatedImage && (
+                    <div className="aspect-square w-full input-glossy rounded-2xl flex flex-col items-center justify-center text-brand-grey">
+                      <Loader2 className="w-8 h-8 animate-spin mb-4 text-brand-peach drop-shadow-[0_0_8px_rgba(255,107,74,0.6)]" />
+                      <span className="neon-text text-white/90">Генерация изображения ({imageSize})...</span>
+                    </div>
+                  )}
+
+                  {generatedImage && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="relative rounded-2xl overflow-hidden border border-brand-peach/30 bg-brand-dark shadow-[0_0_30px_rgba(255,107,74,0.15)]"
+                    >
+                      <img src={generatedImage} alt="Generated" className="w-full h-auto" />
+                      <a
+                        href={generatedImage}
+                        download="generated-image.png"
+                        className="absolute bottom-4 right-4 p-3 bg-brand-dark/80 hover:bg-brand-dark text-brand-peach border border-brand-peach/30 rounded-xl backdrop-blur-md transition-colors shadow-[0_0_15px_rgba(255,107,74,0.2)]"
+                        title="Скачать изображение"
+                      >
+                        <Download className="w-5 h-5" />
+                      </a>
+                    </motion.div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
